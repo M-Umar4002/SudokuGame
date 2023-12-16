@@ -1,53 +1,94 @@
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
+#include <windows.h>
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#include <fcntl.h>
 
-void createMatrixED();
-void createMatrixMD();
-void createMatrixHD();
-void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, char arr[totalRows][totalRows], int sr, int sc);
-int checkRowsColumns(int randposr,int randposc,int num, int length, char ar[length][length]);
-int checkSubblock(int randposr,int randposc,int num, int length, int sr, int sc, char ar[length][length]);
-void printMatrix(int totalRows, int sr, int sc, char arr[totalRows][totalRows]);
-int checkingForEasy(char arr[][6], int row, int col);
-int checkingForMedium(char arr[][9], int row, int col);
-int checkingForHard(char arr[][12], int row, int col);
+void createMatrixED(char** ar);
 
-void main() {
+void createMatrixMD(char** ar);
 
-    srand(time(NULL));
+void createMatrixHD(char** ar);
+
+int storing_in_file(char** arr, int size, int total_clues, int all_rows[total_clues], int all_cols[total_clues]);
+
+int fetching_from_file();
+
+void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, char** arr, int sr, int sc);
+
+int checkRowsColumns(int randposr,int randposc,int num, int length, char** ar);
+
+int checkSubblock(int randposr,int randposc,int num, int length, int sr, int sc, char** ar);
+
+void printMatrix(int totalRows, int sr, int sc, char** arr, int totalClues, int all_rows[totalClues], int all_cols[totalClues]);
+
+int checkingForEasy(char** arr, int row, int col);
+
+int checkingForMedium(char** arr, int row, int col);
+
+int checkingForHard(char** arr, int row, int col);
+
+int main() {
+
+    srand(time(NULL)); // Seed the random number generator with the current time
+
+    start : ; // Label to allow restarting the game
 
     char difficultyLevel;
 
-    do {
-        printf("Enter the difficulty level for which you want to play (press E for easy, M for medium or H for hard): ");
+    do { // Prompt the user to choose difficulty or resume a saved game
+        printf("Enter 'E' for easy, 'M' for medium, 'H' for hard, or 'R' to resume the saved game : ");
         scanf(" %c", &difficultyLevel);
-        getchar();
+        getchar(); // Consume the newline character left in the input buffer
 
-        if(difficultyLevel != 'E' && difficultyLevel != 'M' && difficultyLevel != 'H'){
-            printf("Please choose the correct option from 'E', 'M' or 'H'\n");
+        if(difficultyLevel != 'E' && difficultyLevel != 'M' && difficultyLevel != 'H' && difficultyLevel != 'R'){
+            printf("Please choose from 'E', 'M', 'H' or 'R'.\n");
         }
-    } while(difficultyLevel != 'E' && difficultyLevel != 'M' && difficultyLevel != 'H');
+    } while(difficultyLevel != 'E' && difficultyLevel != 'M' && difficultyLevel != 'H' && difficultyLevel != 'R');
 
+    int size = difficultyLevel == 'E' ? 6 : difficultyLevel == 'M' ? 9 : 12; // Determine the size of the matrix based on the chosen difficulty
+
+    // Allocate memory for the matrix
+    char** arr = calloc(size, sizeof(char*));
+    char* brr = calloc(size * size, sizeof(char));
+
+    for(int i = 0; i < size; i++) {
+        arr[i] = brr + (i * size);
+    }
+
+    // Choose matrix creation based on difficulty level
     switch(difficultyLevel){
-
         case 'E' : 
-            createMatrixED();
+            createMatrixED(arr);
             break;
         case 'M' : 
-            createMatrixMD();
+            createMatrixMD(arr);
             break;
         case 'H' :
-            createMatrixHD();
+            createMatrixHD(arr);
+            break;
+        case 'R' : ;
+            int fetch = fetching_from_file();
+            if(fetch == 2) { // Check if a saved game is available
+                printf("You have not saved any game.\n");
+                goto start; // Restart the game if no saved game is found
+            }
             break;
     }
+
+    // Free the allocated memory for the matrix
+    for(int i = 0; i < size; i++) {
+        free(arr[i]);
+    }
+    free(arr);
+
+    return 0;
 }
 
-void createMatrixED() {
-    char ar[6][6] = {0}; // Creating a Sudoku Matrix (Easy Difficullty)
+// Creating a Sudoku Matrix (Easy Difficullty)
+void createMatrixED(char** ar) {
     int all_rows[14], all_cols[14];
     int clue = 0;
     int num = 0;
@@ -71,12 +112,12 @@ void createMatrixED() {
         }
     }
 
-    printMatrix(6, 2, 3, ar);
+    printMatrix(6, 2, 3, ar, 14, all_rows, all_cols);
     inputOutput(all_rows, all_cols, 6, 14, ar, 2, 3);
 }
 
-void createMatrixMD() {
-    char ar[9][9] = {0}; // Creating a Sudoku Matrix (Medium Difficullty)
+// Creating a Sudoku Matrix (Medium Difficullty)
+void createMatrixMD(char** ar) {
     int all_rows[22], all_cols[22];
     int clue = 0;
     int num = 0;
@@ -100,12 +141,12 @@ void createMatrixMD() {
         }
     }
 
-    printMatrix(9, 3, 3, ar);
+    printMatrix(9, 3, 3, ar, 22, all_rows, all_cols);
     inputOutput(all_rows, all_cols, 9, 22, ar, 3, 3);
 }
 
-void createMatrixHD() {
-    char ar[12][12] = {0}; // Creating a Sudoku Matrix (Hard Difficullty)
+// Creating a Sudoku Matrix (Hard Difficullty)
+void createMatrixHD(char** ar) {
     int all_rows[37], all_cols[37];
     int clue = 0;
     int num = 0;
@@ -129,12 +170,100 @@ void createMatrixHD() {
         }
     }
     
-    printMatrix(12, 3, 4, ar);
+    printMatrix(12, 3, 4, ar, 37, all_rows, all_cols);
     inputOutput(all_rows, all_cols, 12, 37, ar, 3, 4);
 }
 
+// storing  matrix in file
+int storing_in_file(char** arr, int size, int total_clues, int all_rows[total_clues], int all_cols[total_clues]) {
+	FILE *f=fopen("sudokufile.txt","w");
+	if(f == NULL){
+		printf("Error in opening file");
+		return 1;
+	}
+
+    fprintf(f,"%d",size);
+
+	// storing main matrix in file 
+	for(int i=0;i<size;i++){
+		for(int j=0;j<size;j++){
+			fprintf(f, "%c" , arr[i][j]);
+		}
+	}
+    // storing all rows matrix in file 
+	for(int i=0;i<total_clues;i++){		
+			fprintf(f, "%d " , all_rows[i]);
+	}
+    // storing all cols matrix in file 
+		for(int j=0;j<total_clues;j++){
+			fprintf(f, "%d " , all_cols[j]);
+		}
+	fclose(f);
+}
+
+// fetching stored matrix From file
+int fetching_from_file() {
+
+    int size;
+
+    FILE *f = fopen("sudokufile.txt", "r");
+    if (f == NULL) {
+        printf("Error in opening file");
+        return 1;
+    }
+
+    int buffer_size=1024;
+	char buffer[buffer_size];
+	fgets(buffer,buffer_size,f);
+	if(buffer == NULL) return 2;
+	fseek(f,0,SEEK_SET);
+
+    fscanf(f,"%d",&size);
+
+    // Allocate memory for the matrix
+    char** arr = calloc(size, sizeof(char*));
+    char* brr = calloc(size * size, sizeof(char));
+
+    for(int i = 0; i < size; i++) {
+        arr[i] = brr + (i * size);
+    }
+
+    int total_clues = size == 6 ? 14 : size == 9 ? 22 : 37;
+    int all_rows[total_clues], all_cols[total_clues];
+
+    // Fetching from main matrix in file
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            fscanf(f, "%c", &arr[i][j]);
+        }
+    }
+
+    // Fetching all_rows matrix in file
+    for (int i = 0; i < total_clues; i++) {
+        fscanf(f, "%d", &all_rows[i]);
+    }
+
+    // Fetching all_cols matrix in file
+    for (int i = 0; i < total_clues; i++) {
+        fscanf(f, "%d", &all_cols[i]);
+    }
+
+    fclose(f);
+
+    printMatrix(size, size == 6 ? 2 : 3, size == 12 ? 4 : 3, arr, total_clues, all_rows, all_cols);
+    inputOutput(all_rows, all_cols, size, total_clues, arr, size == 6 ? 2 : 3, size == 12 ? 4 : 3);
+
+    // Free the allocated memory for the matrix
+    for(int i = 0; i < size; i++) {
+        free(arr[i]);
+    }
+    free(arr);
+
+    return 0;
+}
+
 // Function to handle input and output for the game
-void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, char arr[totalRows][totalRows], int sr, int sc) {
+void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, char** arr, int sr, int sc) {
     bool isSuccessful = false;  // Flag to indicate if the game is successfully completed
     int i = 0;  // Counter for the number of iterations
 
@@ -146,29 +275,36 @@ void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, 
 
         if (i > 0) { // Ask the user whether to replace or add a value
             do {
-                printf("Do you want to replace any value or want to add any value (press 'r' to replace or 'a' to add): ");
+                printf("Enter 'r' to replace, 'a' to add any value, or 'S' to save your game for later use : ");
                 scanf(" %c", &choice);
 
-                if (choice != 'a' && choice != 'r') {
-                    printf("Please choose the option from 'r' or 'a'.\n");
+                if (choice != 'a' && choice != 'r'  && choice != 'S') {
+                    printf("Please choose from 'r', 'a' or 'S'.\n");
                 }
-            } while (choice != 'a' && choice != 'r');
+            } while (choice != 'a' && choice != 'r' && choice != 'S');
         } else {
             choice = 'a';  // Default choice for the first iteration
         }
 
         switch (choice) {
             int rn, cn;  // Variables for row and column numbers
+            char rn1, cn1;
 
             case 'a':  // Add a value
             label_a: ;  // Label to allow jumping back to this point
 
                 do { // Ask the user for the row and column numbers to add a value
-                    printf("Enter the row number and column number where you want to add the value (in format row-column): ");
-                    scanf("%d-%d", &rn, &cn);
+                    printf("Enter coordinates (in row-col) : ");
+                    scanf(" %c-%c", &rn1, &cn1);
+
+                    if(rn1 >= '0' && rn1 <= '9') rn = rn1 - '0';
+                    else rn = rn1 - 55;
+
+                    if(cn1 >= '0' && cn1 <= '9') cn = cn1 - '0';
+                    else cn = cn1 - 55;
 
                     if (rn < 1 || rn > totalRows || cn < 1 || cn > totalRows) {
-                        printf("Invalid row number or column number. Please try again.\n");
+                        printf("Invalid row or col. Try again.\n");
                     }
                 } while (rn < 1 || rn > totalRows || cn < 1 || cn > totalRows);
 
@@ -178,7 +314,7 @@ void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, 
                     // Ask the user for the value to add based on the game's dimensions
                     if (totalRows == 12) { // For a 12x12 game
                         do {
-                            printf("Enter the value you want to add at row no %d, column no. %d from (1-12, A, B, C): ", rn, cn);
+                            printf("Enter the value to add : ");
                             scanf(" %c", &value);
                             if (value < '1' || value > '9' && value != 'A' && value != 'B' && value != 'C') {
                                 printf("Invalid value. Please choose from (1-12, A, B, C).\n");
@@ -188,7 +324,7 @@ void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, 
                         } while (1);
                     } else { // For 6x6 and 9x9
                         do {
-                            printf("Enter the value you want to add at row no %d, column no %d from (1-%d): ", rn, cn, totalRows);
+                            printf("Enter the value to add : ");
                             scanf(" %c", &value);
 
                             if (value < '1' || value > (totalRows + '0')) {
@@ -209,7 +345,7 @@ void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, 
                         arr[rn - 1][cn - 1] = value;
                         i++;  // Increment the iteration counter
                     } else {
-                        printf("The value already exists in that row, column, or subblock. Please try again.\n");
+                        printf("This value exists in that row, column, or subblock. Try again.\n");
                         goto start;  // Jump back to the beginning of the loop
                     }
                 } else {
@@ -217,24 +353,22 @@ void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, 
 
                     if (i > 0) { // Ask the user whether to replace or choose another row and column
                         do {
-                            printf("There is already a value at row no. %d, column %d. Press 'r' to replace or 'a' to choose another row and column: ", rn, cn);
+                            printf("There is value at row %c, col %c. Press 'r' to replace, 'a' to choose another row-col, or 'S' to save the game : ", rn1, cn1);
                             scanf(" %c", &pref);
 
-                            if (pref != 'a' && pref != 'r') {
-                                printf("Please choose 'r' or 'a'.\n");
+                            if (pref != 'a' && pref != 'r' && pref != 'S') {
+                                printf("Please choose 'r', 'a' or 'S'.\n");
                             }
-                        } while (pref != 'a' && pref != 'r');
+                        } while (pref != 'a' && pref != 'r' && pref != 'S');
                     } else {
-                        printf("There is already a value. Please try again.\n");
+                        printf("There is already a value. Try again.\n");
                         goto label_a;  // Jump back to choosing another row and column
                     }
 
                     // Jump to the label according to user's choice
-                    if (pref == 'r') {
-                        goto label_r;
-                    } else {
-                        goto label_a;
-                    }
+                    if (pref == 'r') goto label_r;
+                    else if (pref == 'a') goto label_a;
+                    else goto label_S;
                 }
                 break;
 
@@ -244,16 +378,22 @@ void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, 
                 bool isCoordinateSame = false;
 
                 do { // Ask the user for the row and column numbers to replace a value
-                    printf("Enter the row no. and column no. where you want to replace the value (in format row-column): ");
-                    scanf("%d-%d", &rn, &cn);
+                    printf("Enter coordinates (in row-col) : ");
+                    scanf(" %c-%c", &rn1, &cn1);
+
+                    if(rn1 >= '0' && rn1 <= '9') rn = rn1 - '0';
+                    else rn = rn1 - 55;
+
+                    if(cn1 >= '0' && cn1 <= '9') cn = cn1 - '0';
+                    else cn = cn1 - 55;
 
                     if (rn < 1 || rn > totalRows || cn < 1 || cn > totalRows) {
-                        printf("Invalid row number or column number. Please try again.\n");
+                        printf("Invalid row or col. Try again.\n");
                     } else {
                         // Check if the chosen cell is computer-generated (a clue)
                         for (int i = 0; i < totalClues; i++) {
                             if (rn - 1 == all_rows[i] && cn - 1 == all_cols[i]) {
-                                printf("You can't replace the value at row no. %d, column no. %d as it is a computer-generated clue. Please try again.\n", rn, cn);
+                                printf("You can't replace it as it is computer-generated. Try again.\n");
                                 isCoordinateSame = true;
                                 goto start;  // Jump back to the beginning of the loop
                             }
@@ -267,7 +407,7 @@ void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, 
                     // Ask the user for the new value based on the game's dimensions
                     if (totalRows == 12) { // For a 12x12 game
                         do {
-                            printf("Enter the new value you want to replace at row no %d, column no. %d from (1-12, A, B, C): ", rn, cn);
+                            printf("Enter the new value to replace : ");
                             scanf(" %c", &value);
 
                             if (value < '1' || value > '9' && value != 'A' && value != 'B' && value != 'C') {
@@ -278,7 +418,7 @@ void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, 
                         } while (1);
                     } else { // For 6x6 and 9x9
                         do {
-                            printf("Enter the new value you want to replace at row no %d, column no %d from (1-%d): ", rn, cn, totalRows);
+                            printf("Enter the new value to replace : ");
                             scanf(" %c", &value);
 
                             if (value < '1' || value > totalRows + '0') {
@@ -298,32 +438,45 @@ void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, 
                     if (checkRowsColumns(rn - 1, cn - 1, value, totalRows, arr) && checkSubblock(rn - 1, cn - 1, value, totalRows, sr, sc, arr)) {
                         arr[rn - 1][cn - 1] = value;
                     } else {
-                        printf("The value already exists in that row, column, or subblock. Please try again.\n");
+                        printf("This value exists in that row, column, or subblock. Try again.\n");
                         goto start;  // Jump back to the beginning of the loop
                     }
                 } else {
                     char pref;
 
                     do { // Ask the user whether to add a value or choose another row and column to replace
-                        printf("There is not any value at row no. %d, column no. %d. Press 'a' to add a value or 'r' to choose another row and column to replace: ", rn, cn);
+                        printf("There is not any value at row %d, col %c. Press 'a' to add, 'r' to replace any other value, or 'S' to save the game : ", rn, cn);
                         scanf(" %c", &pref);
 
-                        if (pref != 'a' && pref != 'r') {
-                            printf("Please choose the option from 'r' or 'a'.\n");
+                        if (pref != 'a' && pref != 'r' && pref != 'S') {
+                            printf("Please choose from 'r', 'a' or 'S'.\n");
                         }
-                    } while (pref != 'a' && pref != 'r');
+                    } while (pref != 'a' && pref != 'r' && pref != 'S');
 
-                    // Jump to the label according tothe user's choice
-                    if (pref == 'r') {
-                        goto label_r;
-                    } else {
-                        goto label_a;
-                    }
+                    // Jump to the label according to the user's choice
+                    if (pref == 'r') goto label_r;
+                    else if (pref == 'a') goto label_a;
+                    else goto label_S;
                 }
                 break;
+
+            case 'S' : 
+            label_S : ;
+
+                int store = storing_in_file(arr, totalRows, totalClues, all_rows, all_cols);
+                
+                if(store) {
+                    printf("Sorry, there is an issue in saving the game.");
+                    goto start;
+                } else {
+                    printf("Game is saved successfully.");
+                    return;
+                }
+                break;
+
         }
 
-        printMatrix(totalRows, sr, sc, arr); // Print the updated matrix
+        printMatrix(totalRows, sr, sc, arr, totalClues, all_rows, all_cols); // Print the updated matrix
 
         // Check if all cells are filled (no zeros)
         bool noZero = true;
@@ -367,7 +520,7 @@ void inputOutput(int all_rows[], int all_cols[], int totalRows, int totalClues, 
 
 // Arguements include the initial array, the randomly chosen coordinates, the random number and dimension of the square matrix
 // Checking columns and rows to see if any column or row collinear to the coordinates has a number equal to the inputted number
-int checkRowsColumns(int randposr,int randposc,int num, int length, char ar[length][length]) {
+int checkRowsColumns(int randposr,int randposc,int num, int length, char** ar) {
     for (int k = 0; k < length; k++) { 
         if (num == ar[randposr][k] || num == ar[k][randposc]) {
           return 0; 
@@ -376,7 +529,7 @@ int checkRowsColumns(int randposr,int randposc,int num, int length, char ar[leng
     return 1;
 }
 
-int checkSubblock(int randposr,int randposc,int num, int length, int sr, int sc, char ar[length][length]) {
+int checkSubblock(int randposr,int randposc,int num, int length, int sr, int sc, char** ar) {
     int srow = sr * (randposr / sr);  // sr and sc are the dimensions of the subblocks
     int scolumn = sc * (randposc / sc);
     for (int k = srow; k < srow + sr; k++) { // Now check the subblock that the address belongs to and find if any equal value exists
@@ -389,12 +542,30 @@ int checkSubblock(int randposr,int randposc,int num, int length, int sr, int sc,
     return 1;
 }
 
-// Function to print the generated and updated both type of matrices for all dimensions
-void printMatrix(int totalRows, int sr, int sc, char arr[totalRows][totalRows]){
+// Function to print the generated and updated both type of matrices
+void printMatrix(int totalRows, int sr, int sc, char** arr, int totalClues, int all_rows[totalClues], int all_cols[totalClues]){
 
+    system("cls"); // To clear the screen before printing matrix
+
+    // To handle the colors of the matrix
+    CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleInfo);
+    WORD saved_attributes = consoleInfo.wAttributes;
+
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
+    printf("\n    ");
+    for(int i = 0; i < sr; i++){
+        printf(" ");
+        for(int j = 0; j < sc; j++){
+            printf(" %c", sc*i+j > 8 ? sc*i+j+56 : sc*i+j+49);
+        }
+        printf(" ");
+    }
     printf("\n");
     for (int i = 0; i < totalRows; i++) { // Iterate through rows
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
         if(!(i % sr)){ // Print horizontal separator for subgrid
+            printf("    ");
             for(int j = 0; j < sr; j++){
                 printf(" ");
                 for(int k = 0; k < sc; k++){
@@ -404,18 +575,38 @@ void printMatrix(int totalRows, int sr, int sc, char arr[totalRows][totalRows]){
             }
             printf("\n");
         }
+        printf(" %c  ", i > 8 ? i+56 : i+49);
         for (int j = 0; j < totalRows; j++) { // Iterate through columns
             if(!(j % sc)){ // Print vertical separator for subgrid
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
                 printf("| ");
             }
+            bool isGeneratedCoordinate = false;
+            for(int k = 0; k < totalClues; k++){
+                if(i == all_rows[k] && j == all_cols[k]){
+                    isGeneratedCoordinate = true;
+                    break; 
+                }
+            }
             // Print the cell value or a space if the cell is empty
-            printf("%c ", (arr[i][j]) ? (arr[i][j] >= 10 ? arr[i][j] + 55 : arr[i][j] + '0') : ' ');
+            if(arr[i][j]){
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), isGeneratedCoordinate ? 4 : 1);
+                printf("%c ", (arr[i][j] >= 10 ? arr[i][j] + 55 : arr[i][j] + '0'));
+            } else {
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
+                _setmode(_fileno(stdout), 0x00020000);
+                wprintf(L"□ ");
+                _setmode(_fileno(stdout), _O_TEXT);
+            }
             if(j + 1 == totalRows){ // Print the closing vertical separator for the last cell in the row
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
                 printf("| ");
             }
         }
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
         printf("\n");
         if(i + 1 == totalRows){ // Print the horizontal separator for the last subgrid
+            printf("    ");
             for(int j = 0; j < sr; j++){
                 printf(" ");
                 for(int k = 0; k < sc; k++){
@@ -427,9 +618,10 @@ void printMatrix(int totalRows, int sr, int sc, char arr[totalRows][totalRows]){
         }
     }
     printf("\n");
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), saved_attributes);
 }
 
-int checkingForEasy(char arr[][6], int row, int col) {
+int checkingForEasy(char** arr, int row, int col) {
     int check;
     arr[row][col];
     bool flag = true;
@@ -480,7 +672,7 @@ int checkingForEasy(char arr[][6], int row, int col) {
 	return flag;  
 }
 
-int checkingForMedium(char arr[][9], int row, int col) {
+int checkingForMedium(char** arr, int row, int col) {
     int check;
     arr[row][col];
     bool flag = true;
@@ -531,7 +723,7 @@ int checkingForMedium(char arr[][9], int row, int col) {
     return flag;
 }
 
-int checkingForHard(char arr[][12], int row, int col) {
+int checkingForHard(char** arr, int row, int col) {
     int check;
     arr[row][col];
     bool flag = true;
