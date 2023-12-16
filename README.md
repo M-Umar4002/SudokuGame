@@ -21,4 +21,4 @@ After selection of difficulty, one of 3 starting matrices will be chosen pertain
 User will be asked for difficulty selection and the starting matrix with the clues filled in will be shown after which they will be asked to input coordinates and then input a value at those coordinates. After each input the modified matrix will be displayed and the user will have the ability to replace previously inputted values.
 
 ## Future plan:
-It is planned to involve a scoring system that will store top 3 high scores only whilst also displaying the user’s own score after the end of each complete session (although this will not be saved). In addition, there are some errors that have been seen through testing and will be ironed out. A 12x12 board is also in the works as a hard difficulty.
+As planned, a save state feature has been added along with 2 new difficulties.
