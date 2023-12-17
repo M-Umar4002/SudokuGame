@@ -10,7 +10,7 @@
 
 ## Main Idea: Create a Sudoku game with multiple difficulties using C.
 
-##**Input:**
+## Input:
 The very first input will be the selection of difficulty using a char input of E, M or H pertaining to Easy, Medium, and Hard difficulties respectively.
 After selection of difficulty, the user will be prompted to enter coordinates for the desired position they want to modify and will then be able to modify the value at those coordinates, although the clues generated at the start of the matrix creation cannot be modified.
 
