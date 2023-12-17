@@ -33,7 +33,7 @@ I faced problems while creating the save state feature as our matrix is characte
 **Umar:**
 Since my work depended upon calling the functions of my teammates and handling the arguements for the final product, it proved difficult to properly connect all the different functions and their arguements for a coherent code. This required time to properly understand the different functions although there was not much logically wrong in my work.
 
-##Algorithm:
+## Algorithm:
 The way this code works is as follows:-
 1. An initial matrix is created containing random values between 1 and 9 (inclusive) and this is done using the checking functions.
 2. The player is shown this matrix and asked for input (first the position then the value). For every following input the player will also be asked if they want to replace or add onto the matrix.
