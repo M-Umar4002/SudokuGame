@@ -2,6 +2,7 @@
  * Date: 10/10/2023
  * Task: Checking for valid sudoku board for each difficulty.
  */
+
 #include <stdio.h>
 #include <stdbool.h>
 

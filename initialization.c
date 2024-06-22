@@ -11,7 +11,7 @@
 
 // Arguements include the initial array, the randomly chosen coordinates, the random number and dimension of the square matrix
 // Checking columns and rows to see if any column or row collinear to the coordinates has a number equal to the inputted number
-int Checkrowscolumns(int ar[length][length],int randposr,int randposc,int num,int length) {
+int Checkrowscolumns(int randposr,int randposc,int num,int length, int ar[length][length]) {
     for (int k = 0;k<length;k++) { 
         if (num == ar[randposr][k] || num == ar[k][randposc]) {
            return 0; 
@@ -20,7 +20,7 @@ int Checkrowscolumns(int ar[length][length],int randposr,int randposc,int num,in
     return 1;
 }
 
-int Checksubblock(int ar[length][length],int randposr,int randposc,int num,int sr,int sc) {
+int Checksubblock(int randposr,int randposc,int num,int sr,int sc, int length, int ar[length][length]) {
     int srow = sr * (randposr / sr); // sr and sc are the dimensions of the subblocks
     int scolumn = sc * (randposc / sc);
     for (int k = srow;k<srow + sr;k++) { // Now check the subblock that the address belongs to and find if any equal value exists
@@ -52,7 +52,7 @@ void CreatematrixMD() {
             
             // If statement checks the functions return values to see if num passes the sudoku rules
             
-            if (Checkrowscolumns(ar,randposr,randposc,num,9) == 1 && Checksubblock(ar,randposr,randposc,num,subblockrows,subblockcolumns) == 1) {
+            if (Checkrowscolumns(randposr,randposc,num,9,ar) == 1 && Checksubblock(randposr,randposc,num,subblockrows,subblockcolumns,9,ar) == 1) {
                 
                 ar[randposr][randposc] = num;
                 
@@ -84,7 +84,7 @@ void CreatematrixED() {
 
             num = (rand() % (6)) + 1; // Inputs a random number between 1 and 6 into num variable
            // If statement checks the functions return values to see if num passes the sudoku rules
-            if (Checkrowscolumns(ar,randposr,randposc,num,6) == 1 && Checksubblock(ar,randposr,randposc,num,subblockrows,subblockcolumns) == 1) {
+            if (Checkrowscolumns(randposr,randposc,num,6,ar) == 1 && Checksubblock(randposr,randposc,num,subblockrows,subblockcolumns,6,ar) == 1) {
                 
                 ar[randposr][randposc] = num;
                 
@@ -116,7 +116,7 @@ void CreatematrixHD() {
 
             num = (rand() % (12)) + 1; // Inputs a random number between 1 and 12 into num variable
            // If statement checks the functions return values to see if num passes the sudoku rules
-            if (Checkrowscolumns(ar,randposr,randposc,num,12) == 1 && Checksubblock(ar,randposr,randposc,num,subblockrows,subblockcolumns) == 1) {
+            if (Checkrowscolumns(randposr,randposc,num,12,ar) == 1 && Checksubblock(randposr,randposc,num,subblockrows,subblockcolumns,12,ar) == 1) {
                 
                 ar[randposr][randposc] = num;
                 
